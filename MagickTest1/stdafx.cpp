@@ -1,5 +1,5 @@
 // stdafx.cpp : source file that includes just the standard includes
-// MagickTest1.pch will be the pre-compiled header
+// CpMagick.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
  
 #include "stdafx.h"

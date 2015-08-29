@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "MagickTest1.h"
+#include "CpMagick.h"
 
 extern char pathDrop[MAX_PATH];
 

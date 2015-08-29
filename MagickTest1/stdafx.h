@@ -15,12 +15,12 @@
 
 // TODO: reference additional headers your program requires here
 
-#include <S:\ImageMagick\Magick++\lib\Magick++.h>	// ImageMagick include file
+#include <Magick++.h>	// ImageMagick include file
 
 // libs -AR-
 
 //#pragma comment( lib, "CORE_RL_magick_" )
-#pragma comment( lib, "CORE_DB_Magick++_" )
+#pragma comment( lib, "CORE_RL_Magick++_" )
 //#pragma comment( lib, "CORE_RL_wand_" )
 
 

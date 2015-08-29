@@ -1,7 +1,7 @@
 // CpMagick.cpp : Defines the exported functions for the DLL application.
 //
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "CpMagick.h"
 
 
@@ -30,7 +30,8 @@ extern "C" CpMagick_API void fnPopMsgBox(void) {
 
 // This is the constructor of a class that has been exported.
 // see CpMagick.h for the class definition
-CCpMagick::CCpMagick()
-{
-	return;
-}
+
+//CCpMagick::CCpMagick()
+//{
+//	return;
+//}

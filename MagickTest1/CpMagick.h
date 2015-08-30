@@ -26,6 +26,12 @@ using namespace Magick;
 
 #pragma comment( lib, "CORE_RL_Magick++_" )		// ImageMagick library
 
+// Constants ----------------------------------------------------------------
+
+#define ASPECT_RATIO 1.4142 // Standard ISO 216 relationship between width & height
+#define STARTING_SEQUENCE_NUMBER 1; // start counting panels at this number
+
+
 // Structs and enums --------------------------------------------------------
 
 enum CropStyle {
@@ -42,7 +48,7 @@ extern CpMagick_API int nCpMagick;
 // Functions ----------------------------------------------------------------
 
 
-extern "C" CpMagick_API int fnDoCrop(int, int, int, int, int);
+extern "C" CpMagick_API HRESULT fnCpMagickEntry(int, int, int, int, int);
 
 CpMagick_API int fnCpMagick(void);
 
@@ -56,11 +62,15 @@ class CCropStyleAbstract {
 	bool bRequiresHTML5;
 	bool bIsRectilinear;
 	int iSparsenessFactor; //TODO: review whether this is needed
+
+protected:
 	Image image;
 
 public:
 	CCropStyleAbstract(void);
-	int GrabOriginal(void);
+	HRESULT GrabOriginal(string);
+	HRESULT RotateOriginal(int);
+	HRESULT WriteOriginal(string filename);
 };
 
 
@@ -81,6 +91,7 @@ class CCropStyleGrid : public CCropStyleRectilinearAbstract {
 
 public:
 	CCropStyleGrid(int rows, int cols, int kerf, int rot);
+	HRESULT DoCrop(int rows, int cols, int kerf);
 };
 
 

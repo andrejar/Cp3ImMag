@@ -35,3 +35,4 @@ extern "C" CpMagick_API void fnPopMsgBox(void) {
 //{
 //	return;
 //}
+

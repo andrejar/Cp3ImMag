@@ -94,5 +94,10 @@ public:
 	HRESULT DoCrop(int rows, int cols, int kerf);
 };
 
+class CCropStyleBrick : public CCropStyleRectilinearAbstract {
 
+public:
+	CCropStyleBrick(int rows, int cols, int kerf, int rot);
+	HRESULT DoCrop(int rows, int cols, int kerf);
+};
 

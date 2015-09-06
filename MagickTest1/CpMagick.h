@@ -101,3 +101,10 @@ public:
 	HRESULT DoCrop(int rows, int cols, int kerf);
 };
 
+class CCropStyleHerringbone : public CCropStyleRectilinearAbstract {
+
+public:
+	CCropStyleHerringbone(int rows, int kerf, int rot);
+	HRESULT DoCrop(int rows, int kerf);
+};
+

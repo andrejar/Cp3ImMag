@@ -7,10 +7,10 @@
       <FileName>CpMagick.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CCropStyleBrick">
+  <Class Name="CCropStyleHerringbone">
     <Position X="0.5" Y="7.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAACAAAAAAAA=</HashCode>
       <FileName>CpMagick.h</FileName>
     </TypeIdentifier>
   </Class>

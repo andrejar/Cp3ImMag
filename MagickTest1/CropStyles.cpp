@@ -276,26 +276,26 @@ HRESULT CCropStyleHerringbone::DoCrop(int rows, int kerf) {
 
 	// cut up individual panels until the original image space is exhausted
 
-	int iXext = 0;	// horizontal high water mark
-	int iYext = 0;	// vertical high water mark
+	int iXhigh = 0;	// horizontal high water mark
+	int iYhigh = 0;	// vertical high water mark
 
 	//int iXBfir = 0;	// X coord of Bottom left vertex of first panel
-	//int iYBfir = 0;	// Y coort of Bottom left vertex of first panel
+	//int iYBfir = 0;	// Y coord of Bottom left vertex of first panel
 	//int iXTfir = 0;	// X coord of Top right vertex of first panel
-	//int iYTfir = 0;	// Y coort of Top right vertex of first panel
+	//int iYTfir = 0;	// Y coord of Top right vertex of first panel
 
-	int iXBleft = 0;	// X coord of Bottom left vertex of leftmost panel
-	int iYBleft = 0;	// Y coort of Bottom left vertex of leftmost panel
-	//int iXTleft = 0;	// X coord of Top right vertex of leftmost panel
-	//int iYTleft = 0;	// Y coort of Top right vertex of leftmost panel
+	int iXfirst = 0;	// X coord of bottom left vertex of leftmost panel
+	int iYfirst = 0;	// Y coord of bottom left vertex of leftmost panel
+	int iXnext = 0;		// X coord of bottom left vertex of next horizontal panel
+	int iYnext = 0;		// Y coord of bottom left vertex of next horizontal panel
 
 	// start far to the left and down, to account for upward "drift" in A4 herringbone pattern
 	// use the bigger of the two panel dimensions, in order to be conservative
 	if (iXtot >= iYtot)
-		iXext = iYext = iXBleft = iYBleft = -iXtot;
+		iXhigh = iYhigh = iXfirst = iYfirst = iXnext = iYnext = -iXtot;
 	else
-		iXext = iYext = iXBleft = iYBleft = -iYtot;
-	printf("Starting coords for the loops are: (%d, %d)\n", iXext, iYext);
+		iXhigh = iYhigh = iXfirst = iYfirst = iXnext = iYnext = -iYtot;
+	printf("Starting coords for the loops are: (%d, %d)\n", iXhigh, iYhigh);
 
 	int iSeq = STARTING_SEQUENCE_NUMBER;
 	Image imgPanel; // the small panel which is being cropped out of the original image
@@ -303,53 +303,82 @@ HRESULT CCropStyleHerringbone::DoCrop(int rows, int kerf) {
 	bool bCurrentHorizontal = bLeftmostHorizontal;		// current is leftmost, at the start
 
 
-	while ( iYext < iYtot ) {						// outer loop
+	while ( iYhigh < iYtot ) {						// outer loop
+		printf("======= OUTER ==============\n\n");
 		// reset leftmost type
 		bCurrentHorizontal = bLeftmostHorizontal;
 		printf("Leftmost panel is horizontal: %s\n", bLeftmostHorizontal ? "true" : "false");
-		// move leftmost vertex up a level
-		if (bLeftmostHorizontal) {	// panel type is horizontal
-			iXBleft = iXBleft + (iHXout - iVXout);
-			iYBleft = iYBleft + iHYout;
-		}
-		else {	// panel type is vertical
-			// iXBleft does not change
-			iYBleft = iYBleft + iVYout;	// add a vertical outer height
-		}
-		printf("Leftmost bottom vertex for the row: (%d, %d)\n", iXBleft, iYBleft);
+
+
 		// rewind to left edge of row
 
-		while (iXext < iXtot) {	// inner loop	
-			// calculate outer vertices
-			if (bCurrentHorizontal) {	// panel type is horizontal
-				
 
+		while (iXhigh < iXtot) {	// inner loop	
+			printf("======= INNER ==============\n\n");
+			printf("Bottom-left coords for the candidate outline are: (%d, %d)\n", iXnext, iYnext);
+			// calculate top-right and inner vertices
+			int iXBLinner, iYBLinner, iXTRinner, iYTRinner;
+			if (bCurrentHorizontal) {	// panel type is horizontal
+				iXhigh = iXnext + iHXout;
+				iYhigh = iYnext + iHYout;
+				iXBLinner = iXnext + iKTBpels;
+				iYBLinner = iYnext + iKLRpels;
+				iXTRinner = iXhigh - iKTBpels;
+				iYTRinner = iYhigh - iKLRpels;
 			}
 			else {	// panel type is vertical
-
+				iXhigh = iXnext + iVXout;
+				iYhigh = iYnext + iVYout;
+				iXBLinner = iXnext + iKLRpels;
+				iYBLinner = iYnext + iKTBpels;
+				iXTRinner = iXhigh - iKLRpels;
+				iYTRinner = iYhigh - iKTBpels;
 			}
+			printf("Top right coords for the candidate outline are: (%d, %d)\n", iXhigh, iYhigh);
+			printf("Bottom-left inner panel coords are: (%d, %d)\n", iXBLinner, iYBLinner);
+			printf("Top-right inner panel coords are: (%d, %d)\n", iXTRinner, iYTRinner);
 
-			iXext++; //TODO: remove
-
-			//imgPanel = image;	// reset panel image to original image
-			//printf("Cutting a panel at: (%d, %d)\n", iXext, iYext);
-			//imgPanel.crop(Geometry(iXpan, iYpan, iXext, iYext));
-			//TODO: mark new panel on layout map
-			// now commit the new panel to disk
-			//imgPanel.write("lowrider_BRICK_" + to_string(iSeq) + ".jpg");
-
-			//advance extents by one panel forward
-
-			
-
-			// increment panel sequence number
-			iSeq++;
+			// determine whether the bottom-left and top-right inner vertices
+			// are within image boundaries, in which case - cut a panel!
+			if ((iXBLinner >= 0) &&	(iYBLinner >= 0) && (iXTRinner <= iXtot) &&	(iYTRinner <= iYtot)) {
+				printf("----- CUT ----- CUT ----- CUT -----\n");
+				imgPanel = image;	// reset panel image to original image
+				imgPanel.crop(Geometry((iXTRinner-iXBLinner), (iYTRinner-iYBLinner), iXBLinner, iYBLinner));
+				//TODO: mark new panel on layout map
+				// now commit the new panel to disk
+				imgPanel.write("lowrider_HERRINGBONE_" + to_string(iSeq) + ".jpg");
+				// increment panel sequence number
+				iSeq++;
+			}
+		
+			// move BL vertex one panel to the right
+			if (bCurrentHorizontal) {	// panel type is horizontal
+				iXnext += iHXout;
+				// iYnext does not change
+			}
+			else {	// panel type is vertical
+				iXnext += iVXout;
+				iYnext += (iVYout - iHYout);
+			}
 			// toggle panel orientation
 			bCurrentHorizontal = !bCurrentHorizontal;
 		}
 		// done with that row. Advance one row higher
+		if (bLeftmostHorizontal) {	// panel type is horizontal
+			iXfirst = iXfirst + (iHXout - iVXout);
+			iYfirst = iYfirst + iHYout;
+		}
+		else {	// panel type is vertical
+				// iXBleft does not change
+			iYfirst = iYfirst + iVYout;	// add a vertical outer height
+		}
+		printf("Leftmost bottom vertex for the row: (%d, %d)\n", iXfirst, iYfirst);
+		// rewind next pointer
+		iXnext = iXhigh = iXfirst;
+		iYnext = iYfirst;
+
 		bLeftmostHorizontal = !bLeftmostHorizontal;	// toggle leftmost type
-		iYext++; //TODO: remove
+
 	}
 
 	return S_OK;

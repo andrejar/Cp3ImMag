@@ -10,11 +10,12 @@
 CCropStyleAbstract::CCropStyleAbstract() {
 
 }
-HRESULT CCropStyleAbstract::GrabOriginal(string orig)
+HRESULT CCropStyleAbstract::GrabOriginal(void)
 {
 	// load the original image
 	try {
-		image.read( orig );
+		image.read(sPathToImage + sFileName);
+		//image.read( orig );
 		//TODO: check original image minimum requirements!!!
 	}
 	catch (Exception &error_) {
@@ -46,6 +47,24 @@ HRESULT CCropStyleAbstract::WriteOriginal(string filename) {
 		return E_FAIL;
 	}
 	return S_OK;
+}
+
+std::string CCropStyleAbstract::getPathToImage(void)
+{
+	return sPathToImage;
+};
+
+void CCropStyleAbstract::setPathToImage(string argPath)
+{
+	sPathToImage = argPath;
+}
+std::string CCropStyleAbstract::getFileName(void)
+{
+	return sFileName;
+}
+void CCropStyleAbstract::setFileName(string argName)
+{
+	sFileName = argName;
 };
 
 
@@ -109,10 +128,14 @@ HRESULT CCropStyleGrid::DoCrop(int rows, int cols, int kerf) {
 		while ((iXext + iXpan) <= iXtot) {	// inner loop	
 			imgPanel = image;	// reset panel image to original image
 			printf("Cutting a panel at: (%d, %d)\n", iXext, iYext);
+			OutputDebugString(L"INFO: ++++ ++++ About to crop a panel...\n");
 			imgPanel.crop(Geometry(iXpan, iYpan, iXext, iYext));
+			OutputDebugString(L"INFO: ---- ---- Cropped a panel.\n");
 			//TODO: mark new panel on layout map
 			// now commit the new panel to disk
-			imgPanel.write("lowrider_GRID_" + to_string(iSeq) + ".jpg");
+			OutputDebugString(L"INFO: ++++ About to write a panel to disk...\n");
+			imgPanel.write( getPathToImage() + getFileName() + "_GRID_" + to_string(iSeq) + ".jpg");
+			OutputDebugString(L"INFO: ---- Wrote panel to disk.\n");
 
 			//advance extents by one panel width
 			iXext += iXpan;
@@ -120,6 +143,7 @@ HRESULT CCropStyleGrid::DoCrop(int rows, int cols, int kerf) {
 			if ((iXext + iKpels) <= iXtot)
 				iXext += iKpels;
 			// increment panel sequence number
+			OutputDebugString(L"INFO: incrementing panel sequence number.\n");
 			iSeq++;
 		}
 		// done with that row. Increment iYext
@@ -127,8 +151,9 @@ HRESULT CCropStyleGrid::DoCrop(int rows, int cols, int kerf) {
 		// add kerf if appropriate
 		if ((iYext + iKpels) <= iYtot)
 			iYext += iKpels;
+		OutputDebugString(L"INFO: row completed.\n");
 	}
-
+	OutputDebugString(L"INFO: About to return from DoCrop()...\n");
 	return S_OK;
 };
 
@@ -192,7 +217,7 @@ HRESULT CCropStyleBrick::DoCrop(int rows, int cols, int kerf) {
 			imgPanel.crop(Geometry(iXpan, iYpan, iXext, iYext));
 			//TODO: mark new panel on layout map
 			// now commit the new panel to disk
-			imgPanel.write("lowrider_BRICK_" + to_string(iSeq) + ".jpg");
+			imgPanel.write(getPathToImage() + getFileName() + "_BRICK_" + to_string(iSeq) + ".jpg");
 
 			//advance extents by one panel width
 			iXext += iXpan;
@@ -342,11 +367,18 @@ HRESULT CCropStyleHerringbone::DoCrop(int rows, int kerf) {
 			// are within image boundaries, in which case - cut a panel!
 			if ((iXBLinner >= 0) &&	(iYBLinner >= 0) && (iXTRinner <= iXtot) &&	(iYTRinner <= iYtot)) {
 				printf("----- CUT ----- CUT ----- CUT -----\n");
-				imgPanel = image;	// reset panel image to original image
-				imgPanel.crop(Geometry((iXTRinner-iXBLinner), (iYTRinner-iYBLinner), iXBLinner, iYBLinner));
-				//TODO: mark new panel on layout map
-				// now commit the new panel to disk
-				imgPanel.write("lowrider_HERRINGBONE_" + to_string(iSeq) + ".jpg");
+				try {
+					imgPanel = image;	// reset panel image to original image
+					imgPanel.crop(Geometry((iXTRinner - iXBLinner), (iYTRinner - iYBLinner), iXBLinner, iYBLinner));
+					//TODO: mark new panel on layout map
+					// now commit the new panel to disk
+					//imgPanel.write("lowrider_HERRINGBONE_" + to_string(iSeq) + ".jpg");
+					imgPanel.write(getPathToImage() + getFileName() + "_HERRINGBONE_" + to_string(iSeq) + ".jpg");
+				}
+				catch (Exception &error_) {
+					cout << "Caught exception during rotation: " << error_.what() << endl;
+					//return E_FAIL;
+				}
 				// increment panel sequence number
 				iSeq++;
 			}

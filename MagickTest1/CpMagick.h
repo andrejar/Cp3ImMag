@@ -20,11 +20,14 @@
 #include <string>
 #include <Magick++.h>	// ImageMagick include file
 #include <iostream> 
+#include "AtlConv.h"	// for the all-powerful ATL string macros
 
 using namespace std;
 using namespace Magick;
 
 #pragma comment( lib, "CORE_RL_Magick++_" )		// ImageMagick library
+
+#pragma warning( disable : C4251 )	// I realise the client needs to have DLL interface
 
 // Constants ----------------------------------------------------------------
 
@@ -48,7 +51,7 @@ extern CpMagick_API int nCpMagick;
 // Functions ----------------------------------------------------------------
 
 
-extern "C" CpMagick_API HRESULT fnCpMagickEntry(int, int, int, int, int);
+extern "C" CpMagick_API HRESULT fnCpMagickEntry(PWSTR, PWSTR, int, int, int, int, int);
 
 CpMagick_API int fnCpMagick(void);
 
@@ -58,7 +61,9 @@ CpMagick_API int fnCpMagick(void);
 class CCropStyleAbstract {
 	// ancestor of all crop styles
 
-	std::string strDisplayName;
+	std::string sDisplayName;
+	std::string sPathToImage;
+	std::string sFileName;
 	bool bRequiresHTML5;
 	bool bIsRectilinear;
 	int iSparsenessFactor; //TODO: review whether this is needed
@@ -68,9 +73,13 @@ protected:
 
 public:
 	CCropStyleAbstract(void);
-	HRESULT GrabOriginal(string);
+	HRESULT GrabOriginal(void);
 	HRESULT RotateOriginal(int);
 	HRESULT WriteOriginal(string filename);
+	std::string getPathToImage(void);
+	void setPathToImage(string);
+	std::string getFileName(void);
+	void setFileName(string);
 };
 
 
